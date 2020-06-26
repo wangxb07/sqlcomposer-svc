@@ -1,0 +1,16 @@
+development:
+  dialect: sqlite3
+  datasource: test.db
+  dir: migrations/sqlite3
+
+development_mysql:
+  dialect: mysql
+  datasource: root:123123@/sqlcomposer_api_test?parseTime=true
+  dir: migrations/mysql
+  table: migrations
+
+production:
+  dialect: mysql
+  datasource: sqlcomposer_api
+  dir: migrations/mysql
+  table: migrations
