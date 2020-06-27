@@ -14,17 +14,15 @@ import (
 var db *sqlx.DB
 
 type Config struct {
-	DNS      string
-	LogLevel log.Level
+	DB *sqlx.DB
 }
 
 func Setup(cfg *Config) {
 	//init db
-	db = sqlx.MustConnect("mysql", cfg.DNS)
+	db = cfg.DB
 }
 
 func Destroy() {
-	defer db.Close()
 }
 
 func errJSON(err error) map[string]interface{} {

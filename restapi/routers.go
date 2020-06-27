@@ -35,5 +35,7 @@ func InitRoutes() *gin.Engine {
 		rv1.DELETE("/dsn/:id", v1.DSNDeleteHandler())
 	}
 
+	router.POST("*path", SqlComposerHandler())
+
 	return router
 }

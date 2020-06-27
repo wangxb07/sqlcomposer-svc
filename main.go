@@ -7,6 +7,7 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jessevdk/go-flags"
+	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"github.com/user/sqlcomposer-svc/restapi"
 	"github.com/user/sqlcomposer-svc/restapi/v1"
@@ -43,8 +44,11 @@ func main() {
 		os.Exit(code)
 	}
 
+	db := sqlx.MustConnect("mysql", cfg.DB)
+	defer db.Close()
+
 	v1.Setup(&v1.Config{
-		DNS: cfg.DB,
+		DB: db,
 	})
 
 	defer v1.Destroy()
