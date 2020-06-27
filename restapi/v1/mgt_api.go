@@ -60,7 +60,13 @@ func DocListHandler() gin.HandlerFunc {
 
 func DocGetHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		doc, err := models.Docs().One(context, db)
+		id, err := strconv.Atoi(context.Param("id"))
+		if err != nil {
+			context.JSON(http.StatusBadRequest, fmt.Sprintf("ID param is required, %s", err))
+			return
+		}
+
+		docFound, err := models.FindDoc(context, db, id)
 
 		if err != nil {
 			log.Error(err)
@@ -68,14 +74,14 @@ func DocGetHandler() gin.HandlerFunc {
 			return
 		}
 
-		context.JSON(http.StatusOK, doc)
+		context.JSON(http.StatusOK, docFound)
 	}
 }
 
 func DocUpdateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		var (
-			id  int
+			id int
 		)
 
 		id, err := strconv.Atoi(context.Param("id"))
@@ -147,6 +153,135 @@ func DocDeleteHandler() gin.HandlerFunc {
 		}
 
 		if _, err := docFound.Delete(context, db); err != nil {
+			log.Error(err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
+			return
+		}
+
+		context.JSON(http.StatusOK, "delete success")
+	}
+}
+
+func DSNListHandler() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		res, err := models.DatabaseConfigs().All(context, db)
+
+		if err != nil {
+			log.Error(err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
+			return
+		}
+
+		total, err := models.DatabaseConfigs().Count(context, db)
+
+		if err != nil {
+			log.Error(err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
+			return
+		}
+
+		context.JSON(http.StatusOK, &map[string]interface{}{
+			"data":  res,
+			"total": total,
+		})
+	}
+}
+
+func DSNGetHandler() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		id, err := strconv.Atoi(context.Param("id"))
+		if err != nil {
+			context.JSON(http.StatusBadRequest, fmt.Sprintf("ID param is required, %s", err))
+			return
+		}
+
+		dbFound, err := models.FindDatabaseConfig(context, db, id)
+
+		if err != nil {
+			log.Error(err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
+			return
+		}
+
+		context.JSON(http.StatusOK, dbFound)
+	}
+}
+
+func DSNUpdateHandler() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		var (
+			id int
+		)
+
+		id, err := strconv.Atoi(context.Param("id"))
+		if err != nil {
+			context.JSON(http.StatusBadRequest, fmt.Sprintf("ID param is required, %s", err))
+			return
+		}
+
+		dsnFound, err := models.FindDatabaseConfig(context, db, id)
+		err = context.Bind(&dsnFound)
+
+		if err != nil {
+			log.Error(err)
+			context.JSON(http.StatusNotFound, errJSON(err))
+			return
+		}
+
+		if rowsAff, err := dsnFound.Update(context, db, boil.Infer()); err != nil {
+			log.Error(err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
+			return
+		} else if rowsAff != 1 {
+			log.Error("should only affect one row but affected", rowsAff)
+			context.JSON(http.StatusInternalServerError,
+				fmt.Sprintf("should only affect one row but affected, %d affected", rowsAff))
+			return
+		}
+
+		context.JSON(http.StatusOK, dsnFound)
+	}
+}
+
+func DSNAddHandler() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		var DSN models.DatabaseConfig
+		err := context.Bind(&DSN)
+
+		if err != nil {
+			log.Error(err)
+			context.JSON(http.StatusBadRequest, errJSON(err))
+			return
+		}
+
+		if err := DSN.Insert(boil.WithDebug(context, true), db, boil.Infer()); err != nil {
+			log.Error(err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
+			return
+		}
+
+		context.JSON(http.StatusOK, DSN)
+	}
+}
+
+func DSNDeleteHandler() gin.HandlerFunc {
+	return func(context *gin.Context) {
+		var id int
+
+		id, err := strconv.Atoi(context.Param("id"))
+		if err != nil {
+			context.JSON(http.StatusBadRequest, fmt.Sprintf("ID param is required, %s", err))
+			return
+		}
+
+		dsnFound, err := models.FindDatabaseConfig(context, db, id)
+		if err != nil {
+			log.Error(err)
+			context.JSON(http.StatusNotFound, fmt.Sprintf("not found doc by id %d, %s", id, err))
+			return
+		}
+
+		if _, err := dsnFound.Delete(context, db); err != nil {
 			log.Error(err)
 			context.JSON(http.StatusInternalServerError, errJSON(err))
 			return
