@@ -47,6 +47,8 @@ func main() {
 		DNS: cfg.DB,
 	})
 
+	defer v1.Destroy()
+
 	router := restapi.InitRoutes()
 
 	srv := &http.Server{

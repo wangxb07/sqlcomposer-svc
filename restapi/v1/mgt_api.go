@@ -6,7 +6,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"github.com/user/sqlcomposer-svc/models"
-	"github.com/volatiletech/sqlboiler/boil"
+	"github.com/volatiletech/sqlboiler/v4/boil"
 	"net/http"
 	"strconv"
 )
@@ -23,13 +23,23 @@ func Setup(cfg *Config) {
 	db = sqlx.MustConnect("mysql", cfg.DNS)
 }
 
+func Destroy() {
+	defer db.Close()
+}
+
+func errJSON(err error) map[string]interface{} {
+	return map[string]interface{}{
+		"err": err.Error(),
+	}
+}
+
 func DocListHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
 		docs, err := models.Docs().All(context, db)
 
 		if err != nil {
 			log.Error(err)
-			context.JSON(http.StatusInternalServerError, err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
 			return
 		}
 
@@ -37,7 +47,7 @@ func DocListHandler() gin.HandlerFunc {
 
 		if err != nil {
 			log.Error(err)
-			context.JSON(http.StatusInternalServerError, err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
 			return
 		}
 
@@ -54,7 +64,7 @@ func DocGetHandler() gin.HandlerFunc {
 
 		if err != nil {
 			log.Error(err)
-			context.JSON(http.StatusInternalServerError, err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
 			return
 		}
 
@@ -64,26 +74,37 @@ func DocGetHandler() gin.HandlerFunc {
 
 func DocUpdateHandler() gin.HandlerFunc {
 	return func(context *gin.Context) {
-		var doc models.Doc
-		err := context.Bind(&doc)
+		var (
+			id  int
+		)
+
+		id, err := strconv.Atoi(context.Param("id"))
+		if err != nil {
+			context.JSON(http.StatusBadRequest, fmt.Sprintf("ID param is required, %s", err))
+			return
+		}
+
+		docFound, err := models.FindDoc(context, db, id)
+		err = context.Bind(&docFound)
 
 		if err != nil {
 			log.Error(err)
-			context.JSON(http.StatusBadRequest, err)
+			context.JSON(http.StatusNotFound, errJSON(err))
 			return
 		}
 
-		if rowsAff, err := doc.Update(context, db, boil.Infer()); err != nil {
+		if rowsAff, err := docFound.Update(context, db, boil.Infer()); err != nil {
 			log.Error(err)
-			context.JSON(http.StatusInternalServerError, err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
 			return
 		} else if rowsAff != 1 {
 			log.Error("should only affect one row but affected", rowsAff)
-			context.JSON(http.StatusInternalServerError, err)
+			context.JSON(http.StatusInternalServerError,
+				fmt.Sprintf("should only affect one row but affected, %d affected", rowsAff))
 			return
 		}
 
-		context.JSON(http.StatusOK, doc)
+		context.JSON(http.StatusOK, docFound)
 	}
 }
 
@@ -94,13 +115,13 @@ func DocAddHandler() gin.HandlerFunc {
 
 		if err != nil {
 			log.Error(err)
-			context.JSON(http.StatusBadRequest, err)
+			context.JSON(http.StatusBadRequest, errJSON(err))
 			return
 		}
 
-		if err := doc.Insert(context, db, boil.Infer()); err != nil {
+		if err := doc.Insert(boil.WithDebug(context, true), db, boil.Infer()); err != nil {
 			log.Error(err)
-			context.JSON(http.StatusInternalServerError, err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
 			return
 		}
 
@@ -127,7 +148,7 @@ func DocDeleteHandler() gin.HandlerFunc {
 
 		if _, err := docFound.Delete(context, db); err != nil {
 			log.Error(err)
-			context.JSON(http.StatusInternalServerError, err)
+			context.JSON(http.StatusInternalServerError, errJSON(err))
 			return
 		}
 

@@ -23,10 +23,10 @@ func InitRoutes() *gin.Engine {
 	rv1 := router.Group("/v1")
 	{
 		rv1.GET("/doc", v1.DocListHandler())
-		rv1.PATCH("/doc/:uuid", v1.DocUpdateHandler())
+		rv1.PATCH("/doc/:id", v1.DocUpdateHandler())
 		rv1.POST("/doc", v1.DocAddHandler())
-		rv1.GET("/doc/:uuid", v1.DocGetHandler())
-		rv1.DELETE("/doc/:uuid", v1.DocDeleteHandler())
+		rv1.GET("/doc/:id", v1.DocGetHandler())
+		rv1.DELETE("/doc/:id", v1.DocDeleteHandler())
 	}
 
 	return router
