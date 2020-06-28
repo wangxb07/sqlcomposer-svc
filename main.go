@@ -8,6 +8,7 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/jessevdk/go-flags"
 	"github.com/jmoiron/sqlx"
+	"github.com/rubenv/sql-migrate"
 	log "github.com/sirupsen/logrus"
 	"github.com/user/sqlcomposer-svc/restapi"
 	"github.com/user/sqlcomposer-svc/restapi/v1"
@@ -46,6 +47,19 @@ func main() {
 
 	db := sqlx.MustConnect("mysql", cfg.DB)
 	defer db.Close()
+
+	migrations := &migrate.FileMigrationSource{
+		Dir: "migrations/mysql",
+	}
+
+	migrate.SetTable("migrations")
+
+	n, err := migrate.Exec(db.DB, "mysql", migrations, migrate.Up)
+	if err != nil {
+		log.Error("migration exec failure:", n, err)
+		os.Exit(0)
+	}
+	log.Info(fmt.Sprintf("Applied %d migrations!", n))
 
 	v1.Setup(&v1.Config{
 		DB: db,

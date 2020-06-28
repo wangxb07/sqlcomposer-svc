@@ -20,6 +20,15 @@ func InitRoutes() *gin.Engine {
 		c.String(http.StatusOK, "pong")
 	})
 
+	router.Use(cors.New(cors.Config{
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "X-Requested-With", "X-CSRF-TOKEN"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowAllOrigins:  true,
+		MaxAge:           12 * time.Hour,
+	}))
+
 	// group v1 for mgt
 	rv1 := router.Group("/v1")
 	{
@@ -37,15 +46,6 @@ func InitRoutes() *gin.Engine {
 	}
 
 	router.POST("/sql-composer/*path", SqlComposerHandler())
-
-	router.Use(cors.New(cors.Config{
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
-		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "X-Requested-With", "X-CSRF-TOKEN"},
-		ExposeHeaders:    []string{"Content-Length"},
-		AllowCredentials: true,
-		AllowAllOrigins:  true,
-		MaxAge:           12 * time.Hour,
-	}))
 
 	return router
 }
