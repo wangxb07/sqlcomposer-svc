@@ -15,6 +15,7 @@ import (
 	"sort"
 	"strings"
 	"sync"
+	"time"
 )
 
 type SqlComposerRequest struct {
@@ -57,6 +58,7 @@ func errJSON(err error) map[string]interface{} {
 // @Router /{path} [get]
 func SqlComposerHandler() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		start := time.Now()
 		//get yml by path from db
 		path := c.Param("path")
 		debug := c.Query("debug")
@@ -104,7 +106,7 @@ func SqlComposerHandler() gin.HandlerFunc {
 
 		db, err := sqlx.Connect("mysql", dbc.DSN.String)
 		if err != nil {
-			log.Error(err)
+			log.WithField("dsn", dbc.DSN.String).Error(err)
 			c.JSON(http.StatusBadRequest, errJSON(err))
 			return
 		}
@@ -121,9 +123,10 @@ func SqlComposerHandler() gin.HandlerFunc {
 		configureSqlCompose(sqlBuilder)
 
 		result := struct {
-			Total int64             `json:"total,omitempty"`
-			Data  []interface{}     `json:"data,omitempty"`
-			SQL   map[string]string `json:"sql"`
+			Total    int64             `json:"total,omitempty"`
+			Data     []interface{}     `json:"data,omitempty"`
+			SQL      map[string]string `json:"sql"`
+			ExecTime string            `json:"exec_time"`
 		}{}
 
 		result.SQL = make(map[string]string)
@@ -184,8 +187,9 @@ func SqlComposerHandler() gin.HandlerFunc {
 					log.Error(err)
 				}
 			}
-
 		}
+
+		result.ExecTime = time.Since(start).String()
 
 		c.JSON(http.StatusOK, result)
 	}
