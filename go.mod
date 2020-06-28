@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/friendsofgo/errors v0.9.2
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
+	github.com/gin-contrib/cors v1.3.1
 	github.com/gin-gonic/gin v1.6.3
 	github.com/go-sql-driver/mysql v1.5.0
 	github.com/gofrs/uuid v3.3.0+incompatible // indirect
@@ -18,10 +19,8 @@ require (
 	github.com/spf13/jwalterweatherman v1.1.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/spf13/viper v1.7.0
-	github.com/volatiletech/null v8.0.0+incompatible
 	github.com/volatiletech/null/v8 v8.1.0
 	github.com/volatiletech/randomize v0.0.1
-	github.com/volatiletech/sqlboiler v3.7.1+incompatible
 	github.com/volatiletech/sqlboiler/v4 v4.1.2
 	github.com/volatiletech/strmangle v0.0.1
 	github.com/wangxb07/sqlcomposer v0.0.0-20200626133242-30aabd76e1c5

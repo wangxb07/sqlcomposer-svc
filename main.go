@@ -51,6 +51,10 @@ func main() {
 		DB: db,
 	})
 
+	restapi.Setup(&restapi.Config{
+		DB: db,
+	})
+
 	defer v1.Destroy()
 
 	router := restapi.InitRoutes()

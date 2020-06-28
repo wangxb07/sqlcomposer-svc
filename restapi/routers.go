@@ -1,6 +1,7 @@
 package restapi
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/user/sqlcomposer-svc/restapi/v1"
 	"net/http"
@@ -35,7 +36,16 @@ func InitRoutes() *gin.Engine {
 		rv1.DELETE("/dsn/:id", v1.DSNDeleteHandler())
 	}
 
-	router.POST("*path", SqlComposerHandler())
+	router.POST("/sql-composer/*path", SqlComposerHandler())
+
+	router.Use(cors.New(cors.Config{
+		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS"},
+		AllowHeaders:     []string{"Origin", "Content-Length", "Content-Type", "X-Requested-With", "X-CSRF-TOKEN"},
+		ExposeHeaders:    []string{"Content-Length"},
+		AllowCredentials: true,
+		AllowAllOrigins:  true,
+		MaxAge:           12 * time.Hour,
+	}))
 
 	return router
 }
