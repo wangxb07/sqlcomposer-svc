@@ -467,6 +467,8 @@ github.com/volatiletech/strmangle v0.0.1 h1:UKQoHmY6be/R3tSvD2nQYrH41k43OJkidwEi
 github.com/volatiletech/strmangle v0.0.1/go.mod h1:F6RA6IkB5vq0yTG4GQ0UsbbRcl3ni9P76i+JrTBKFFg=
 github.com/wangxb07/sqlcomposer v0.0.0-20200628095138-5c576c6f763b h1:GWI+lK1dqQYDPzkgV5BRySbe2i4ZC3m5UDnYpIiF9dw=
 github.com/wangxb07/sqlcomposer v0.0.0-20200628095138-5c576c6f763b/go.mod h1:xnmQclptHtunqcIjKjD8jz2iAHqFg+4OyOnGgEBl3VA=
+github.com/wangxb07/sqlcomposer v0.0.0-20200629132706-81f9a2dab70d h1:vwrc31buozHSNKZdIn7aevE5NqL5IpDCzwrNdsK/8ss=
+github.com/wangxb07/sqlcomposer v0.0.0-20200629132706-81f9a2dab70d/go.mod h1:xnmQclptHtunqcIjKjD8jz2iAHqFg+4OyOnGgEBl3VA=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/ziutek/mymysql v1.5.4 h1:GB0qdRGsTwQSBVYuVShFBKaXSnSnYYC2d9knnE1LHFs=

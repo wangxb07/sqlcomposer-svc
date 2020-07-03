@@ -212,6 +212,18 @@ func (atr *attrsFieldsTokenReplacer) TokenReplace(ctx map[string]interface{}) st
 	return ProductAttrsToSelect(atr.Attrs)
 }
 
+type reuseFieldsTokenReplacer struct {
+	Attrs map[string]string
+}
+
+func (atr *reuseFieldsTokenReplacer) TokenReplaceWithParams(params string, token string) string {
+	elem, ok := atr.Attrs[params]
+	if ok {
+		return elem
+	}
+	return ""
+}
+
 var once sync.Once
 
 type DictTypesSingleton map[string]string
@@ -300,6 +312,16 @@ func configureSqlCompose(sb *sqlcomposer.SqlBuilder) {
 			attrs[p.Name] = p.Value
 		}
 		return &attrsFieldsTokenReplacer{
+			Attrs: attrs,
+		}
+	})
+
+	sb.RegisterToken2("reuse", func(params []sqlcomposer.TokenParam) sqlcomposer.ParameterizedTokenReplacer {
+		attrs := map[string]string{}
+		for _, p := range params {
+			attrs[p.Name] = p.Value
+		}
+		return &reuseFieldsTokenReplacer{
 			Attrs: attrs,
 		}
 	})
