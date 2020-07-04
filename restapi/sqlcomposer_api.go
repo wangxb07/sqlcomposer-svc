@@ -316,7 +316,7 @@ func configureSqlCompose(sb *sqlcomposer.SqlBuilder) {
 		}
 	})
 
-	sb.RegisterToken2("reuse", func(params []sqlcomposer.TokenParam) sqlcomposer.ParameterizedTokenReplacer {
+	sb.ParameterizedRegisterToken("reuse", func(params []sqlcomposer.TokenParam) sqlcomposer.ParameterizedTokenReplacer {
 		attrs := map[string]string{}
 		for _, p := range params {
 			attrs[p.Name] = p.Value
