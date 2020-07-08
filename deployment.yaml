@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: analysis-stock
+  name: analysis-stock
+  namespace: zhijin-mes
+spec:
+  progressDeadlineSeconds: 600
+  replicas: 1
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: analysis-stock
+  strategy:
+    rollingUpdate:
+      maxSurge: 25%
+      maxUnavailable: 25%
+    type: RollingUpdate
+  template:
+    metadata:
+      labels:
+        app: analysis-stock
+    spec:
+      containers:
+        - env:
+            - name: DB_CONNECT_STRING
+              value: >-
+                jxkj_ro:jxkj_ro2020@tcp(rm-bp1mc5x3sj51u6d15mo.mysql.rds.aliyuncs.com)/db2?charset=utf8&parseTime=True&loc=Local
+            - name: HOST
+              value: 0.0.0.0
+            - name: aliyun_logs_zhijin-mes
+              value: stdout
+          image: ${REGISTRY}:${VERSION}_${BUILD_NUMBER}
+          imagePullPolicy: IfNotPresent
+          name: analysis-stock
+          resources: {}
+      dnsPolicy: ClusterFirst
+      imagePullSecrets:
+        - name: aliyun-vpc
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      securityContext: {}
+      terminationGracePeriodSeconds: 30
+status: {}

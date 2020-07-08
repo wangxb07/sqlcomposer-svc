@@ -303,4 +303,6 @@ func configureSqlCompose(sb *sqlcomposer.SqlBuilder) {
 			Attrs: attrs,
 		}
 	})
+
+	_ = sb.RegisterPipelineType("fulltext")
 }
