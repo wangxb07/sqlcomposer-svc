@@ -471,6 +471,8 @@ github.com/wangxb07/sqlcomposer v0.0.0-20200628095138-5c576c6f763b h1:GWI+lK1dqQ
 github.com/wangxb07/sqlcomposer v0.0.0-20200628095138-5c576c6f763b/go.mod h1:xnmQclptHtunqcIjKjD8jz2iAHqFg+4OyOnGgEBl3VA=
 github.com/wangxb07/sqlcomposer v0.0.0-20200722154426-a3a9970ef8a5 h1:Gzo3BI5I8tuJ5pBziu4P/aGees57UtvQ8u3BKh4eZBE=
 github.com/wangxb07/sqlcomposer v0.0.0-20200722154426-a3a9970ef8a5/go.mod h1:xnmQclptHtunqcIjKjD8jz2iAHqFg+4OyOnGgEBl3VA=
+github.com/wangxb07/sqlcomposer v0.0.0-20200722171216-0ef6af3cd447 h1:sWwIiEc4hSX1AW29Y5D93QeXLNVoqzrtXhhuKGloTcc=
+github.com/wangxb07/sqlcomposer v0.0.0-20200722171216-0ef6af3cd447/go.mod h1:xnmQclptHtunqcIjKjD8jz2iAHqFg+4OyOnGgEBl3VA=
 github.com/xiang90/probing v0.0.0-20190116061207-43a291ad63a2/go.mod h1:UETIi67q53MR2AWcXfiuqkDkRtnGDLqkBTpCHuJHxtU=
 github.com/xordataexchange/crypt v0.0.3-0.20170626215501-b2862e3d0a77/go.mod h1:aYKd//L2LvnjZzWKhF00oedf4jCCReLcmhLdhm1A27Q=
 github.com/ziutek/mymysql v1.5.4 h1:GB0qdRGsTwQSBVYuVShFBKaXSnSnYYC2d9knnE1LHFs=

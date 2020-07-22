@@ -168,9 +168,9 @@ func SqlComposerHandler() gin.HandlerFunc {
 			)
 			{
 				if sorts.IsEmpty() {
-					q, a, err = sqlBuilder.Rebind("list")
+					q, a, err = sqlBuilder.Rebind(key)
 				} else {
-					q, a, err = sqlBuilder.OrderBy(sorts).Rebind("list")
+					q, a, err = sqlBuilder.OrderBy(sorts).Rebind(key)
 				}
 			}
 
