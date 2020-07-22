@@ -1,17 +1,40 @@
+apiVersion: v1
+data:
+  DB_HOST: rm-bp180jy118d96400x.mysql.rds.aliyuncs.com
+  DB_NAME: sqlcomposer_v2
+  DB_USER: ceshi
+kind: ConfigMap
+metadata:
+  labels:
+    io.kompose.service: sqlcomposer
+  name: sqlcomposer-cfg
+  namespace: demo
+---
+apiVersion: v1
+data:
+  db_password: QmVlaG9tZXBsdXMr
+kind: Secret
+metadata:
+  labels:
+    app: sqlcomposer
+  name: sqlcomposer-secret
+  namespace: demo
+type: Opaque
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   labels:
-    app: analysis-stock
-  name: analysis-stock
-  namespace: zhijin-mes
+    app: sqlcomposer-api-v2
+  name: sqlcomposer-api-v2
+  namespace: demo
 spec:
   progressDeadlineSeconds: 600
   replicas: 1
   revisionHistoryLimit: 10
   selector:
     matchLabels:
-      app: analysis-stock
+      app: sqlcomposer-api-v2
   strategy:
     rollingUpdate:
       maxSurge: 25%
@@ -20,21 +43,42 @@ spec:
   template:
     metadata:
       labels:
-        app: analysis-stock
+        app: sqlcomposer-api-v2
     spec:
       containers:
         - env:
-            - name: DB_CONNECT_STRING
-              value: >-
-                jxkj_ro:jxkj_ro2020@tcp(rm-bp1mc5x3sj51u6d15mo.mysql.rds.aliyuncs.com)/db2?charset=utf8&parseTime=True&loc=Local
-            - name: HOST
-              value: 0.0.0.0
-            - name: aliyun_logs_zhijin-mes
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_USER
+                  name: sqlcomposer-cfg
+            - name: DB_NAME
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_NAME
+                  name: sqlcomposer-cfg
+            - name: DB_HOST
+              valueFrom:
+                configMapKeyRef:
+                  key: DB_HOST
+                  name: sqlcomposer-cfg
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  key: db_password
+                  name: sqlcomposer-secret
+            - name: aliyun_logs_sqlcomposer-api-v2
               value: stdout
-          image: ${REGISTRY}:${VERSION}_${BUILD_NUMBER}
+          image: registry-vpc.cn-hangzhou.aliyuncs.com/beehplus/sqlcomposer-api:2.0.0
           imagePullPolicy: IfNotPresent
-          name: analysis-stock
+          name: sqlcomposer-api-v2
           resources: {}
+          command:
+            - /app/main
+          args:
+            - '--port=80'
+            - '--host=0.0.0.0'
+            - '--db=$(DB_USER):$(DB_PASSWORD)@tcp($(DB_HOST):3306)/$(DB_NAME)?charset=utf8&parseTime=True&loc=Local'
       dnsPolicy: ClusterFirst
       imagePullSecrets:
         - name: aliyun-vpc

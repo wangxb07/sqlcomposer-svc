@@ -22,6 +22,7 @@ type SqlComposerRequest struct {
 	PageIndex int64                    `json:"page_index"`
 	PageLimit int64                    `json:"page_limit"`
 	Filters   []*SqlComposerFilterItem `json:"filters"`
+	Sorts     [][]string               `json:"sorts"`
 }
 
 type SqlComposerFilterItem struct {
@@ -44,6 +45,13 @@ func Setup(cfg *Config) {
 func errJSON(err error) map[string]interface{} {
 	return map[string]interface{}{
 		"err": err.Error(),
+	}
+}
+
+func errJSONWithSQL(err error, s string) map[string]interface{} {
+	return map[string]interface{}{
+		"err": err.Error(),
+		"sql": s,
 	}
 }
 
@@ -86,6 +94,22 @@ func SqlComposerHandler() gin.HandlerFunc {
 				Attr: filter.Attr,
 			}
 			custFilters = append(custFilters, custFilter)
+		}
+
+		sorts := &sqlcomposer.OrderBy{}
+		for _, s := range req.Sorts {
+			var d sqlcomposer.Direction
+
+			d = sqlcomposer.DESC
+
+			if strings.ToUpper(s[1]) == "ASC" {
+				d = sqlcomposer.ASC
+			}
+
+			*sorts = append(*sorts, sqlcomposer.Sort{
+				Name:      s[0],
+				Direction: d,
+			})
 		}
 
 		var doc sqlcomposer.SqlApiDoc
@@ -136,7 +160,19 @@ func SqlComposerHandler() gin.HandlerFunc {
 				log.Error(err)
 			}
 
-			q, a, err := sqlBuilder.Limit((req.PageIndex-1)*req.PageLimit, req.PageLimit).Rebind(key)
+			sqlBuilder.Limit((req.PageIndex-1)*req.PageLimit, req.PageLimit)
+
+			var (
+				q string
+				a []interface{}
+			)
+			{
+				if sorts.IsEmpty() {
+					q, a, err = sqlBuilder.Rebind("list")
+				} else {
+					q, a, err = sqlBuilder.OrderBy(sorts).Rebind("list")
+				}
+			}
 
 			if debug == "1" {
 				result.SQL[key] = q
@@ -153,7 +189,7 @@ func SqlComposerHandler() gin.HandlerFunc {
 				err = db.QueryRowx(q, a...).Scan(&total)
 				if err != nil {
 					log.Error(err)
-					c.JSON(http.StatusBadRequest, err)
+					c.JSON(http.StatusBadRequest, errJSONWithSQL(err, q))
 					return
 				}
 				result.Total = total
@@ -162,7 +198,7 @@ func SqlComposerHandler() gin.HandlerFunc {
 
 				if err != nil {
 					log.Error(err)
-					c.JSON(http.StatusBadRequest, err)
+					c.JSON(http.StatusBadRequest, errJSONWithSQL(err, q))
 					return
 				}
 
@@ -181,10 +217,6 @@ func SqlComposerHandler() gin.HandlerFunc {
 					}
 
 					result.Data = append(result.Data, item)
-				}
-
-				if err != nil {
-					log.Error(err)
 				}
 			}
 		}

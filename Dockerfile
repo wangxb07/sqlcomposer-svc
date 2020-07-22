@@ -4,7 +4,7 @@ WORKDIR /app
 COPY . .
 
 RUN go env -w GOPROXY=https://goproxy.cn,direct
-RUN go build -o main /app/cmd/zhijinyun-server/main.go
+RUN go build -o main /app/main.go
 
 EXPOSE 80
 
