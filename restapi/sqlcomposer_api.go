@@ -154,12 +154,13 @@ func SqlComposerHandler() gin.HandlerFunc {
 		}{}
 
 		result.SQL = make(map[string]string)
-		for key := range doc.Composition.Subject {
-			err = sqlBuilder.AddFilters(custFilters, sqlcomposer.AND)
-			if err != nil {
-				log.Error(err)
-			}
 
+		err = sqlBuilder.AddFilters(custFilters, sqlcomposer.AND)
+		if err != nil {
+			log.Error(err)
+		}
+
+		for key := range doc.Composition.Subject {
 			sqlBuilder.Limit((req.PageIndex-1)*req.PageLimit, req.PageLimit)
 
 			var (
