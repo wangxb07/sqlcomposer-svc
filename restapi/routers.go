@@ -46,6 +46,7 @@ func InitRoutes() *gin.Engine {
 	}
 
 	router.POST("/sql-composer/*path", SqlComposerHandler())
+	router.POST("/sql-composer/test/*path", SqlComposerTestHandler())
 
 	return router
 }

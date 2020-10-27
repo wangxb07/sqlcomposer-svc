@@ -7,6 +7,7 @@ import (
 	"github.com/jmoiron/sqlx"
 	log "github.com/sirupsen/logrus"
 	"github.com/user/sqlcomposer-svc/models"
+	"github.com/volatiletech/null/v8"
 	"github.com/volatiletech/sqlboiler/v4/queries/qm"
 	"github.com/wangxb07/sqlcomposer"
 	"gopkg.in/yaml.v2"
@@ -57,6 +58,14 @@ func errJSON(err error) map[string]interface{} {
 // @Failure 404 {object} Error "not found"
 // @Router /{path} [get]
 func SqlComposerHandler() gin.HandlerFunc {
+	return sqlComposer("official")
+}
+
+func SqlComposerTestHandler() gin.HandlerFunc {
+	return sqlComposer("test")
+}
+
+func sqlComposer(model string) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		start := time.Now()
 		//get yml by path from db
@@ -97,6 +106,10 @@ func SqlComposerHandler() gin.HandlerFunc {
 			c.JSON(http.StatusBadRequest, errJSON(err))
 		}
 
+		if model == "test" {
+			dbName := fmt.Sprintf("test_%s", docFound.DBName.String)
+			docFound.DBName = null.StringFrom(dbName)
+		}
 		dbc, err := models.DatabaseConfigs(qm.Where("name = ?", docFound.DBName)).One(c, db)
 		if err != nil {
 			log.Error(err)
