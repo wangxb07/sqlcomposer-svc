@@ -21,7 +21,7 @@ import (
 
 type ServerConfig struct {
 	Host string `long:"host" description:"the IP to listen on" default:"localhost" env:"HOST"`
-	Port int    `long:"port" description:"the port to listen on for insecure connections" default:"8084" env:"PORT"`
+	Port int    `long:"port" description:"the port to listen on for insecure connections" default:"8080" env:"PORT"`
 	DB   string `long:"db" description:"the database connection dns string" env:"DB"`
 }
 
